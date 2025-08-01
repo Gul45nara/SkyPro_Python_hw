@@ -10,3 +10,4 @@ class Mailing:
                 f"  От кого: {self.from_address}\n"
                 f"  Кому: {self.to_address}\n"
                 f"  Стоимость: {self.cost} рублей")
+#Добавлен комментарий
