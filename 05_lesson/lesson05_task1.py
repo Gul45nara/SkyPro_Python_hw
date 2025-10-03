@@ -1,42 +1,49 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-import time
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 def test_blue_button():
-    # Настройки Chrome для стабильной работы
-    chrome_options = Options()
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--start-maximized")
+    print("Запуск теста...")
 
-    # Инициализация драйвера Chrome
-    driver = webdriver.Chrome(options=chrome_options)
+    # Автоматическая установка ChromeDriver
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service)
 
     try:
-        # Установим таймаут ожидания элементов
-        driver.implicitly_wait(10)
-
-        # Открытие страницы
         print("Открываю страницу...")
         driver.get("http://uitestingplayground.com/classattr")
 
-        # Поиск и клик по синей кнопке
-        print("Ищу синюю кнопку...")
-        blue_button = driver.find_element(By.XPATH, "//button[contains(@class, 'btn-primary')]")
+        wait = WebDriverWait(driver, 10)
+
+        print("Ищу кнопку...")
+        # Ищем кнопку по тексту
+        blue_button = wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Button')]"))
+        )
+
+        print(f"Текст кнопки: {blue_button.text}")
+        print(f"Классы кнопки: {blue_button.get_attribute('class')}")
+
         blue_button.click()
+        print("Успешно: Кнопка нажата")
 
-        print("Успешно: Клик по синей кнопке выполнен!")
-
-        # Небольшая пауза чтобы увидеть результат
-        time.sleep(3)
+        # Обработка alert
+        try:
+            alert = wait.until(EC.alert_is_present())
+            alert_text = alert.text
+            alert.accept()
+            print(f"Alert закрыт: {alert_text}")
+        except:
+            print("Alert не появился")
 
     except Exception as e:
         print(f"Ошибка: {e}")
 
     finally:
-        # Закрытие браузера
         driver.quit()
         print("Браузер закрыт")
 
