@@ -2,16 +2,10 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 
 
 def test_blue_button():
-    print("Запуск теста...")
-
-    # Автоматическая установка ChromeDriver
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service)
+    driver = webdriver.Chrome()
 
     try:
         print("Открываю страницу...")
@@ -20,7 +14,7 @@ def test_blue_button():
         wait = WebDriverWait(driver, 10)
 
         print("Ищу кнопку...")
-        # Ищем кнопку по тексту
+        # Ждем пока кнопка станет кликабельной
         blue_button = wait.until(
             EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Button')]"))
         )
