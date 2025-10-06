@@ -11,3 +11,4 @@ class User:
 
     def say_full_name(self):
         print(self.first_name, self.last_name)
+#"Добавлен комментарий для создания PR урока 3"
