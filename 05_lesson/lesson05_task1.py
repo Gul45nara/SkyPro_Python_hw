@@ -1,5 +1,5 @@
 from selenium import webdriver
-from selenium.webdriver.common.by import By  # Исправлено: py → by
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
@@ -8,7 +8,7 @@ from selenium.webdriver.chrome.options import Options
 
 
 def test_blue_button():
-    print("== ТЕСТ SELENIUM ==")  # Исправлено: TECT → ТЕСТ
+    print("== ТЕСТ SELENIUM ==")
 
     # Настройка Chrome options
     chrome_options = Options()
