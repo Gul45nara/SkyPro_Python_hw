@@ -1,31 +1,22 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class LoginPage:
     def __init__(self, driver):
         self.driver = driver
-        self.username_input = (By.ID, "user-name")
-        self.password_input = (By.ID, "password")
-        self.login_button = (By.ID, "login-button")
-
-    def open(self):
-        """Открыть страницу авторизации"""
-        self.driver.get("https://www.saucedemo.com/")
-
-    def enter_username(self, username):
-        """Ввести имя пользователя"""
-        self.driver.find_element(*self.username_input).send_keys(username)
-
-    def enter_password(self, password):
-        """Ввести пароль"""
-        self.driver.find_element(*self.password_input).send_keys(password)
-
-    def click_login(self):
-        """Нажать кнопку входа"""
-        self.driver.find_element(*self.login_button).click()
+        self.wait = WebDriverWait(driver, 10)
 
     def login(self, username, password):
-        """Выполнить полный процесс авторизации"""
-        self.enter_username(username)
-        self.enter_password(password)
-        self.click_login()
+        username_field = self.wait.until(EC.presence_of_element_located((By.ID, "user-name")))
+        password_field = self.driver.find_element(By.ID, "password")
+        login_button = self.driver.find_element(By.ID, "login-button")
+
+        username_field.send_keys(username)
+        password_field.send_keys(password)
+        login_button.click()
+
+    def get_error_message(self):
+        error_element = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, "error-message-container")))
+        return error_element.text
