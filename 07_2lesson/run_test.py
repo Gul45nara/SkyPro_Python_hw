@@ -1,52 +1,44 @@
+import time
 from selenium import webdriver
 from calculator_page import CalculatorPage
-import time
-
 
 def main():
-    print("🚀 Запуск теста калькулятора с PageObject...")
-
-    # Создаем драйвер
     driver = webdriver.Chrome()
 
     try:
-        # Создаем объект страницы
-        calculator = CalculatorPage(driver)
+        # Открыть страницу калькулятора
+        driver.get("https://erikh123.github.io/simple-calculator/")
+        calculator_page = CalculatorPage(driver)
 
-        print("1. Открываем страницу калькулятора...")
-        calculator.open()
+        # Установить задержку 45 секунд
+        calculator_page.set_delay(45)
 
-        print("2. Устанавливаем задержку 45 секунд...")
-        calculator.set_delay(45)
-
-        print("3. Выполняем операцию 7 + 8...")
-        calculator.calculate_7_plus_8()
-
-        print("4. Ожидаем результат (может занять до 45 секунд)...")
+        # Засечь время начала вычислений
         start_time = time.time()
-        result = calculator.get_result()
+
+        # Выполнить вычисление 7 + 8
+        calculator_page.click_calculator_button("7")
+        calculator_page.click_calculator_button("+")
+        calculator_page.click_calculator_button("8")
+        calculator_page.click_calculator_button("=")
+
+        # Получить результат
+        result = calculator_page.get_result()
+
+        # Засечь время окончания вычислений
         end_time = time.time()
-
         execution_time = end_time - start_time
-        print(f"5. Получен результат: {result}")
-        print(f"Время выполнения: {execution_time:.2f} секунд")
 
-        if result == "15":
-            print("✅ ТЕСТ ПРОЙДЕН УСПЕШНО!")
-            return True
-        else:
-            print(f"❌ ТЕСТ НЕ ПРОЙДЕН! Ожидалось '15', получено '{result}'")
-            return False
+        # Проверить результат вычислений
+        assert result == "15", f"Ожидался результат 15, получен {result}"
 
-    except Exception as e:
-        print(f"❌ Произошла ошибка: {e}")
-        return False
+        # Проверить время выполнения (примерно 45 секунд с небольшим допуском)
+        assert execution_time >= 45, f"Ожидалось время выполнения не менее 45 секунд, получено {execution_time:.2f} секунд"
+
+        print("Тест калькулятора пройден успешно!")
 
     finally:
-        print("6. Закрываем браузер...")
         driver.quit()
 
-
 if __name__ == "__main__":
-    success = main()
-    exit(0 if success else 1)
+    main()
