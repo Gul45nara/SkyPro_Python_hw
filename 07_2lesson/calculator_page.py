@@ -1,27 +1,39 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import time
+from selenium import webdriver
+from calculator_page import CalculatorPage
 
+def test_calculator():
+    driver = webdriver.Chrome()
 
-class CalculatorPage:
-    def __init__(self, driver):
-        self.driver = driver
-        self.wait = WebDriverWait(driver, 10)
+    try:
+        # Открыть страницу калькулятора
+        driver.get("https://erikh123.github.io/simple-calculator/")
+        calculator_page = CalculatorPage(driver)
 
-        # Упрощенные локаторы
-        self.result_display = (By.CSS_SELECTOR, ".screen")
-        self.button = "//span[text()='{}']"  # Универсальный локатор для всех кнопок
+        # Установить задержку 45 секунд
+        calculator_page.set_delay(45)
 
-    def set_delay(self, delay_value):
-        delay_field = self.driver.find_element(By.ID, "delay")
-        delay_field.clear()
-        delay_field.send_keys(str(delay_value))
+        # Засечь время начала вычислений
+        start_time = time.time()
 
-    def click_calculator_button(self, button_text):
-        """Универсальный метод для клика по любой кнопке калькулятора"""
-        button_locator = (By.XPATH, self.button.format(button_text))
-        self.driver.find_element(*button_locator).click()
+        # Выполнить вычисление 7 + 8
+        calculator_page.click_calculator_button("7")
+        calculator_page.click_calculator_button("+")
+        calculator_page.click_calculator_button("8")
+        calculator_page.click_calculator_button("=")
 
-    def get_result(self):
-        """Получить результат вычислений"""
-        return self.driver.find_element(*self.result_display).text
+        # Получить результат
+        result = calculator_page.get_result()
+
+        # Засечь время окончания вычислений
+        end_time = time.time()
+        execution_time = end_time - start_time
+
+        # Проверить результат вычислений
+        assert result == "15", f"Ожидался результат 15, получен {result}"
+
+        # Проверить время выполнения (примерно 45 секунд с небольшим допуском)
+        assert execution_time >= 45, f"Ожидалось время выполнения не менее 45 секунд, получено {execution_time:.2f} секунд"
+
+    finally:
+        driver.quit()
