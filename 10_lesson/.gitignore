@@ -1,0 +1,22 @@
+﻿# Allure результаты и отчеты
+allure-results/
+allure-report/
+
+# Python кеш
+__pycache__/
+*.pyc
+*.pyo
+
+# Логи
+*.log
+
+# Скриншоты
+.screenshot/
+
+# IDE файлы
+.idea/
+.vscode/
+
+# Временные файлы
+*.tmp
+*.temp
