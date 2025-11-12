@@ -16,7 +16,3 @@ __pycache__/
 # IDE файлы
 .idea/
 .vscode/
-
-# Временные файлы
-*.tmp
-*.temp

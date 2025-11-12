@@ -1,52 +1,29 @@
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
+from typing import Tuple
 
 
 class BasePage:
-    """Base page class with common methods"""
+    """
+    Базовый класс для всех Page Object классов.
+    """
 
-    def __init__(self, driver: webdriver, timeout: int = 10):
-        """
-        Initialize base page
-
-        Args:
-            driver: WebDriver instance
-            timeout: timeout in seconds
-        """
+    def __init__(self, driver: WebDriver) -> None:
         self.driver = driver
-        self.timeout = timeout
+        self.wait = WebDriverWait(driver, 20)  # Увеличил с 10 до 20 секунд
 
-    def find_element(self, locator: tuple, timeout: int = None):
-        """
-        Find element on page
+    def find_element(self, locator: Tuple[str, str]) -> WebElement:
+        return self.wait.until(EC.presence_of_element_located(locator))
 
-        Args:
-            locator: tuple (By, selector)
-            timeout: timeout in seconds
+    def click_element(self, locator: Tuple[str, str]) -> None:
+        self.find_element(locator).click()
 
-        Returns:
-            WebElement: found element
-        """
-        if timeout is None:
-            timeout = self.timeout
-        return WebDriverWait(self.driver, timeout).until(
-            EC.presence_of_element_located(locator)
-        )
+    def input_text(self, locator: Tuple[str, str], text: str) -> None:
+        element = self.find_element(locator)
+        element.clear()
+        element.send_keys(text)
 
-    def find_elements(self, locator: tuple, timeout: int = None):
-        """
-        Find multiple elements on page
-
-        Args:
-            locator: tuple (By, selector)
-            timeout: timeout in seconds
-
-        Returns:
-            list: list of WebElements
-        """
-        if timeout is None:
-            timeout = self.timeout
-        return WebDriverWait(self.driver, timeout).until(
-            EC.presence_of_all_elements_located(locator)
-        )
+    def get_element_text(self, locator: Tuple[str, str]) -> str:
+        return self.find_element(locator).text

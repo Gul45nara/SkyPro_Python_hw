@@ -1,101 +1,76 @@
-from selenium.webdriver.remote.webdriver import WebDriver
+import allure
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webdriver import WebDriver
 from .base_page import BasePage
 
 
 class CheckoutPage(BasePage):
-    """Класс для работы со страницей оформления заказа SauceDemo."""
+    """
+    Page Object для страницы оформления заказа SauceDemo.
+    Обеспечивает взаимодействие с формой оформления заказа.
 
-    def __init__(self, driver: WebDriver, timeout: int = 10) -> None:
-        """
-        Инициализация страницы оформления заказа.
+    Attributes:
+        FIRST_NAME_FIELD: локатор поля имени
+        LAST_NAME_FIELD: локатор поля фамилии
+        POSTAL_CODE_FIELD: локатор поля почтового индекса
+        CONTINUE_BUTTON: локатор кнопки продолжения
+        TOTAL_LABEL: локатор итоговой суммы
+        FINISH_BUTTON: локатор кнопки завершения
+    """
 
-        Args:
-            driver: WebDriver экземпляр
-            timeout: время ожидания в секундах
-        """
-        super().__init__(driver, timeout)
+    # Локаторы элементов страницы оформления заказа
+    FIRST_NAME_FIELD = (By.ID, "first-name")
+    LAST_NAME_FIELD = (By.ID, "last-name")
+    POSTAL_CODE_FIELD = (By.ID, "postal-code")
+    CONTINUE_BUTTON = (By.ID, "continue")
+    TOTAL_LABEL = (By.CLASS_NAME, "summary_total_label")
+    FINISH_BUTTON = (By.ID, "finish")
 
-        # Локаторы элементов страницы
-        self.first_name_field = (By.ID, "first-name")
-        self.last_name_field = (By.ID, "last-name")
-        self.postal_code_field = (By.ID, "postal-code")
-        self.continue_button = (By.ID, "continue")
-        self.total_label = (By.CLASS_NAME, "summary_total_label")
-        self.finish_button = (By.ID, "finish")
-        self.complete_header = (By.CLASS_NAME, "complete-header")
-
-    def enter_first_name(self, first_name: str) -> None:
-        """
-        Ввести имя.
-
-        Args:
-            first_name: имя покупателя
-        """
-        self.enter_text(self.first_name_field, first_name)
-
-    def enter_last_name(self, last_name: str) -> None:
-        """
-        Ввести фамилию.
-
-        Args:
-            last_name: фамилия покупателя
-        """
-        self.enter_text(self.last_name_field, last_name)
-
-    def enter_postal_code(self, postal_code: str) -> None:
-        """
-        Ввести почтовый индекс.
-
-        Args:
-            postal_code: почтовый индекс
-        """
-        self.enter_text(self.postal_code_field, postal_code)
-
+    @allure.step(
+        "Заполнить информацию для оформления заказа: имя '{first_name}', фамилия '{last_name}', индекс '{postal_code}'")
     def fill_checkout_info(self, first_name: str, last_name: str, postal_code: str) -> None:
         """
         Заполнить информацию о покупателе.
 
         Args:
-            first_name: имя покупателя
-            last_name: фамилия покупателя
-            postal_code: почтовый индекс
-        """
-        self.enter_first_name(first_name)
-        self.enter_last_name(last_name)
-        self.enter_postal_code(postal_code)
+            first_name (str): Имя покупателя
+            last_name (str): Фамилия покупателя
+            postal_code (str): Почтовый индекс
 
+        Returns:
+            None
+        """
+        self.input_text(self.FIRST_NAME_FIELD, first_name)
+        self.input_text(self.LAST_NAME_FIELD, last_name)
+        self.input_text(self.POSTAL_CODE_FIELD, postal_code)
+
+    @allure.step("Нажать кнопку 'Continue'")
     def click_continue(self) -> None:
         """
-        Нажать кнопку Continue.
-        """
-        self.click_element(self.continue_button)
+        Нажать кнопку Continue для перехода к итогам заказа.
 
+        Returns:
+            None
+        """
+        self.click_element(self.CONTINUE_BUTTON)
+
+    @allure.step("Нажать кнопку 'Finish'")
     def click_finish(self) -> None:
         """
-        Нажать кнопку Finish.
-        """
-        self.click_element(self.finish_button)
+        Нажать кнопку Finish для завершения заказа.
 
+        Returns:
+            None
+        """
+        self.click_element(self.FINISH_BUTTON)
+
+    @allure.step("Получить итоговую сумму заказа")
     def get_total_amount(self) -> str:
         """
-        Получить итоговую сумму.
+        Получить итоговую сумму заказа.
 
         Returns:
-            str: текст с итоговой суммой
+            str: Итоговая сумма без префикса 'Total: $'
         """
-        total_element = self.find_element(self.total_label)
-        return total_element.text
-
-    def is_order_complete(self) -> bool:
-        """
-        Проверить успешность оформления заказа.
-
-        Returns:
-            bool: True если заказ успешно оформлен, иначе False
-        """
-        try:
-            complete_element = self.find_element(self.complete_header)
-            return "Thank you for your order" in complete_element.text
-        except Exception:
-            return False
+        total_text = self.get_element_text(self.TOTAL_LABEL)
+        return total_text.replace("Total: $", "")

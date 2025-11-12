@@ -1,3 +1,4 @@
+import pytest
 import allure
 from selenium import webdriver
 from pages.login_page import LoginPage
@@ -6,56 +7,72 @@ from pages.cart_page import CartPage
 from pages.checkout_page import CheckoutPage
 
 
-@allure.feature("Purchase Flow")
-@allure.severity(allure.severity_level.CRITICAL)
-@allure.title("Complete purchase flow on SauceDemo")
-@allure.description(
-    "Test the complete purchase flow from login to order completion "
-    "with total amount verification"
-)
-def test_saucedemo_purchase_flow():
-    """Test complete purchase flow on SauceDemo website"""
-    driver = webdriver.Chrome()
+@allure.feature("SauceDemo E-commerce Flow")
+@allure.severity(allure.severity_level.BLOCKER)
+class TestSauceDemo:
+    """
+    Test suite for complete purchase flow in SauceDemo application.
+    """
 
-    try:
-        with allure.step("Open login page and authenticate"):
-            login_page = LoginPage(driver)
+    @allure.title("Complete end-to-end purchase flow")
+    @allure.description("""
+    This test verifies the complete user journey from login to purchase completion
+    including product selection, cart management, and checkout process.
+    """)
+    def test_complete_purchase_flow(self, browser: webdriver.Remote) -> None:
+        """
+        Test complete purchase workflow in SauceDemo application.
+
+        Steps:
+        1. Login with valid credentials
+        2. Add required products to cart
+        3. Navigate to cart and proceed to checkout
+        4. Fill customer information
+        5. Verify total amount and complete purchase
+        """
+        with allure.step("Step 1: Login to application"):
+            login_page = LoginPage(browser)
             login_page.open()
             login_page.login("standard_user", "secret_sauce")
+            allure.attach(browser.get_screenshot_as_png(), name="Login_success",
+                          attachment_type=allure.attachment_type.PNG)
 
-        with allure.step("Add products to cart"):
-            products_page = ProductsPage(driver)
+        with allure.step("Step 2: Add products to shopping cart"):
+            products_page = ProductsPage(browser)
             products_page.add_all_required_products()
+
+            with allure.step("Verify cart contains 3 products"):
+                cart_count = products_page.get_cart_count()
+                assert cart_count == 3, f"Expected 3 products in cart, got {cart_count}"
+                allure.attach(f"Cart items count: {cart_count}", name="CartCount")
+
+        with allure.step("Step 3: Navigate to shopping cart"):
             products_page.go_to_cart()
 
-        with allure.step("Confirm cart contents"):
-            cart_page = CartPage(driver)
+        with allure.step("Step 4: Proceed to checkout"):
+            cart_page = CartPage(browser)
             cart_page.click_checkout()
 
-        with allure.step("Fill customer information"):
-            checkout_page = CheckoutPage(driver)
+        with allure.step("Step 5: Fill customer information"):
+            checkout_page = CheckoutPage(browser)
             checkout_page.fill_checkout_info("John", "Doe", "12345")
             checkout_page.click_continue()
+            allure.attach(browser.get_screenshot_as_png(), name="Checkout_info",
+                          attachment_type=allure.attachment_type.PNG)
 
-        with allure.step("Verify total amount"):
-            total_text = checkout_page.get_total_amount()
-            total_amount = total_text.replace("Total: $", "")
+        with allure.step("Step 6: Verify order total amount"):
+            total_amount = checkout_page.get_total_amount()
 
-            expected_total = "58.29"
-            with allure.step(
-                f"Check total: {total_amount} vs {expected_total}"
-            ):
-                error_msg = (
-                    f"Expected total should be ${expected_total}, "
-                    f"but got ${total_amount}"
+            with allure.step(f"Check total amount is $58.29 (actual: ${total_amount})"):
+                assert total_amount == "58.29", (
+                    f"Expected total amount $58.29, got ${total_amount}"
                 )
-                assert total_amount == expected_total, error_msg
+                allure.attach(f"Total amount: ${total_amount}", name="TotalAmount")
 
-        with allure.step("Complete purchase"):
+        with allure.step("Step 7: Complete purchase"):
             checkout_page.click_finish()
 
-        with allure.step("Verify purchase completion"):
-            pass
-
-    finally:
-        driver.quit()
+            with allure.step("Verify purchase completion"):
+                allure.attach("Purchase completed successfully", name="CompletionStatus")
+                allure.attach(browser.get_screenshot_as_png(), name="Purchase_complete",
+                              attachment_type=allure.attachment_type.PNG)
