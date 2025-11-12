@@ -1,0 +1,57 @@
+from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webdriver import WebDriver
+from .base_page import BasePage
+from typing import List, Tuple
+
+
+class ProductsPage(BasePage):
+    """
+    Page Object для страницы товаров SauceDemo.
+    Обеспечивает взаимодействие с товарами и корзиной.
+    """
+
+    # Локаторы элементов страницы товаров
+    CART_LINK = (By.CLASS_NAME, "shopping_cart_link")
+    CART_BADGE = (By.CLASS_NAME, "shopping_cart_badge")
+
+    # Локаторы кнопок добавления товаров в корзину
+    ADD_TO_CART_BACKPACK = (By.ID, "add-to-cart-sauce-labs-backpack")
+    ADD_TO_CART_BOLT_TSHIRT = (By.ID, "add-to-cart-sauce-labs-bolt-t-shirt")
+    ADD_TO_CART_ONESIE = (By.ID, "add-to-cart-sauce-labs-onesie")
+
+    def go_to_cart(self) -> None:
+        """Перейти в корзину покупок."""
+        self.click_element(self.CART_LINK)
+
+    def add_product_to_cart(self, product_index: int) -> None:
+        """
+        Добавить конкретный товар в корзину по индексу.
+
+        Args:
+            product_index (int): Индекс товара (0: backpack, 1: bolt t-shirt, 2: onesie)
+        """
+        products: List[Tuple[str, str]] = [
+            self.ADD_TO_CART_BACKPACK,
+            self.ADD_TO_CART_BOLT_TSHIRT,
+            self.ADD_TO_CART_ONESIE
+        ]
+        self.click_element(products[product_index])
+
+    def add_all_required_products(self) -> None:
+        """Добавить все необходимые товары в корзину."""
+        self.click_element(self.ADD_TO_CART_BACKPACK)
+        self.click_element(self.ADD_TO_CART_BOLT_TSHIRT)
+        self.click_element(self.ADD_TO_CART_ONESIE)
+
+    def get_cart_count(self) -> int:
+        """
+        Получить количество товаров в корзине.
+
+        Returns:
+            int: Количество товаров в корзине (0 если корзина пуста)
+        """
+        try:
+            cart_badge = self.find_element(self.CART_BADGE)
+            return int(cart_badge.text)
+        except:
+            return 0
